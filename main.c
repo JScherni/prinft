@@ -48,9 +48,25 @@ char* destroyString(char* input){
 }
 
 char* createInputStringFromConsole(){
-    char* input = calloc(255, sizeof(char));
+    int inputSize= 512;
+    char* input = calloc(inputSize, sizeof(char));
+    char* temp = calloc(128, sizeof(char));
 
-    fgets(input,100,stdin);
+    char c = 'y';
+
+    while(temp[0]!=':'&&temp[1]!='q'){
+        printf("Enter a string: \n");
+        fgets(temp,128,stdin);
+        if((strlen(input)+strlen(temp)+1)>512)
+        {
+            inputSize+=512;
+            input = realloc(input, inputSize* sizeof(char));
+        }
+
+        strcat(input,temp);
+        //strcat(input,"\n");
+    }
+    free(temp);
     return input;
 }
 
@@ -59,8 +75,10 @@ int main() {
             "eyo\nschlecht\ntest\naaaa\nwie\n"
     };
 
-    char* input = createInputStringFromFile("test.txt");
-    createFilteredString(input,2,4);
+    //char* input = createInputStringFromFile("test.txt");
+    char *input = createInputStringFromConsole();
+    printf("Input: \n%s\n",input);
+    createFilteredString(input,2,3);
 
     destroyString(input);
     return 0;
