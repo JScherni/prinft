@@ -70,6 +70,7 @@ int process_args(int ac, char *av[], char **input_file, // 1 bei erfolgreicher d
 
         // "f:"  means -f option has an arg  "n"  -n does not
 
+        opterr = 0; //Errormessages der getopt Funktion unterdruecken
         c = getopt(ac, av, "f:t:n");
 
         if (c == -1)
