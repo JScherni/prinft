@@ -261,6 +261,9 @@ char* createInputStringFromConsole(){
 
         strcat(input,temp);
     }
+
+    //remove last new line
+    input[strlen(input)-1]='\0';
     free(temp);
     return input;
 }
@@ -307,3 +310,4 @@ int main(int argc, char *argv[]) {
     destroyString(input);
     return 0;
 }
+// a b c \n \0
