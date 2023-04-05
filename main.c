@@ -198,8 +198,6 @@ void createFilteredString(char* input, int beginOutput, int endOutput, int numbe
     strcpy(temp,input);
 
     int wholeFile = endOutput<0 ? 1 : 0;
-    
-    printf("create filtered string: \n");
 
     for (int i = 1; (i <= endOutput) || wholeFile; i++) {
         if(beginOutput<=i){
@@ -246,11 +244,7 @@ char* createInputStringFromConsole(){
     char* input = calloc(inputSize, sizeof(char));
     char* temp = calloc(128, sizeof(char));
 
-
-    char c = 'y';
-    int i = 0;
-    //FILE *fp = fopen("test.txt", "r");
-
+    printf("Enter lines of text. End with ':q'\n");
     while(1){
         memset(temp,0,128);
         //printf("Enter a string: \n");
@@ -261,73 +255,41 @@ char* createInputStringFromConsole(){
         }
 
 
-        if((strlen(input)+strlen(temp)+1)>512)
-        {
+        if((strlen(input)+strlen(temp)+1)>512){
             inputSize+=512;
             input = realloc(input, inputSize* sizeof(char));
         }
 
         strcat(input,temp);
     }
-    //fclose(fp);
     free(temp);
     return input;
 }
-
-/*
-void printHelp(){
-    printf("Usage: ./fprintf [OPTION]... [FILE]...\n");
-    printf("Write to standard output according to a format.\n");
-}
-*/
 
 int main(int argc, char *argv[]) {
 
     int firstLine = 0;
     int lastLine = -1;
     int Zeilennummerierung = 0;
-    //char *filename = NULL;
-    char filename[] = "test.txt";
+    char *filename = NULL;
     int version = 0;
     int help = 0;
 
-    if(!decideLongShort(argc, argv, &filename, &firstLine, &lastLine, &Zeilennummerierung, &help, &version))
-    {
+    if(!decideLongShort(argc, argv, &filename, &firstLine, &lastLine, &Zeilennummerierung, &help, &version)){
         printSyntaxError();
         return 1;
     }
 
-    if(version)
-    {
+    if(version){
         printVersion();
         return 0;
     }
 
-    if(help)
-    {
+    if(help){
         printHelp();
         return 0;
     }
 
-
-    printf("\n Arg values: -f %d -t %d ", firstLine, lastLine);
-    if (Zeilennummerierung)
-    {
-        printf("-n ");
-    }
-    if (version)
-    {
-        printf("--version");
-    }
-    if (help)
-    {
-        printf("--help");
-    }
-    if (filename)
-    {
-        printf("%s\n", filename);
-    }
-    printf("\n");
 
     char *input = NULL;
     if(filename==NULL){
