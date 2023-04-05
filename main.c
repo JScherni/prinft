@@ -135,40 +135,34 @@ int process_args(int ac, char *av[], char **input_file, // 1 bei erfolgreicher d
 
 void printUntilNewLine(char* print){
     int i = 0;
-    while(print[i]!='\n'){
+    while(print[i]!='\n' && print[i]!='\0'){
         printf("%c",print[i++]);
     }
     printf("\n");
 }
 
-char* createFilteredString(char* input, int beginOutput, int endOutput, int numberLines){
+void createFilteredString(char* input, int beginOutput, int endOutput, int numberLines){
     char* temp = calloc(strlen(input), sizeof(char));
-    //strcpy(temp,input);
+    strcpy(temp,input);
 
-    endOutput = 4;
+    int wholeFile = endOutput<0 ? 1 : 0;
+    
+    printf("create filtered string: \n");
 
-    if(endOutput<0){
-        endOutput = 5;
-    }
-
-    printf("create filtered string");
-
-    for (int i = 1; i <= endOutput; i++) {
+    for (int i = 1; (i <= endOutput) || wholeFile; i++) {
         if(beginOutput<=i){
             if(numberLines) {
                 printf("%d: ", i);
             }
             printUntilNewLine(temp);
         }
-        memset(temp,0,strlen(temp));
-        temp=strchr(input,'\n');
-        printf("temp %d: %s\n", i, temp);
+        temp=strchr(temp,'\n')==NULL? NULL : &(strchr(temp,'\n')[1]);
         if(temp==NULL){
             break;
         }
-        temp=&temp[1];
     }
 }
+
 
 char* createInputStringFromFile(char* filename){
     FILE *fp = fopen(filename, "r");
@@ -238,7 +232,8 @@ int main(int argc, char *argv[]) {
     int ersteZeile = 0;
     int letzteZeile = -1;
     int Zeilennummerierung = 0;
-    char *filename = NULL;
+    //char *filename = NULL;
+    char filename[] = "test.txt";
     int version = 0;
     int hilfe = 0;
 
