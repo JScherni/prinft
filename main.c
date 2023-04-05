@@ -143,16 +143,30 @@ void printUntilNewLine(char* print){
 
 char* createFilteredString(char* input, int beginOutput, int endOutput, int numberLines){
     char* temp = calloc(strlen(input), sizeof(char));
-    strcpy(temp,input);
+    //strcpy(temp,input);
+
+    endOutput = 4;
+
+    if(endOutput<0){
+        endOutput = 5;
+    }
+
+    printf("create filtered string");
+
     for (int i = 1; i <= endOutput; i++) {
-        if(beginOutput<=i)
-        {
+        if(beginOutput<=i){
             if(numberLines) {
                 printf("%d: ", i);
             }
             printUntilNewLine(temp);
         }
-        temp=&(strchr(temp,'\n')[1]);
+        memset(temp,0,strlen(temp));
+        temp=strchr(input,'\n');
+        printf("temp %d: %s\n", i, temp);
+        if(temp==NULL){
+            break;
+        }
+        temp=&temp[1];
     }
 }
 
@@ -222,7 +236,7 @@ void printHelp(){
 int main(int argc, char *argv[]) {
 
     int ersteZeile = 0;
-    int letzteZeile = 0;
+    int letzteZeile = -1;
     int Zeilennummerierung = 0;
     char *filename = NULL;
     int version = 0;
@@ -255,12 +269,20 @@ int main(int argc, char *argv[]) {
         printf("%s\n", filename);
     }
     printf("\n");
-    return 0;
 
-    //char* input = createInputStringFromFile("test.txt");
-    char *input = createInputStringFromConsole();
-    printf("Input: \n%s\n\n",input);
-    createFilteredString(input,2,6,1);
+    char *input = NULL;
+    if(filename==NULL){
+        input = createInputStringFromConsole();
+    } else{
+        input = createInputStringFromFile(filename);
+    }
+
+    if(input==NULL){
+        fprintf(stderr, "Error opening file '%s'", filename);
+        return 1;
+    }
+
+    createFilteredString(input,ersteZeile,letzteZeile,Zeilennummerierung);
 
     destroyString(input);
     return 0;
