@@ -10,12 +10,15 @@ void printUntilNewLine(char* print){
     printf("\n");
 }
 
-char* createFilteredString(char* input, int beginOutput, int endOutput){
+char* createFilteredString(char* input, int beginOutput, int endOutput, int numberLines){
     char* temp = calloc(strlen(input), sizeof(char));
     strcpy(temp,input);
     for (int i = 1; i <= endOutput; i++) {
         if(beginOutput<=i)
         {
+            if(numberLines) {
+                printf("%d: ", i);
+            }
             printUntilNewLine(temp);
         }
         temp=&(strchr(temp,'\n')[1]);
@@ -52,15 +55,17 @@ char* createInputStringFromConsole(){
     char* input = calloc(inputSize, sizeof(char));
     char* temp = calloc(128, sizeof(char));
 
+
     char c = 'y';
     int i = 0;
-    FILE *fp = fopen("test.txt", "r");
+    //FILE *fp = fopen("test.txt", "r");
 
-    while(/*temp[0]!=':'&&temp[1]!='q' && temp[0]!=EOF*/i++<12){
-        printf("Enter a string: \n");
-        fgets(temp,128,fp);
+    while(1){
+        memset(temp,0,128);
+        //printf("Enter a string: \n");
+        fgets(temp,128,stdin);
 
-        if(temp[strlen(temp)+1]==EOF || (temp[0]==':' && temp[1]=='q') || temp==NULL || temp[0]=='\0'){
+        if((temp[0]==':' && temp[1]=='q') || temp==NULL || temp[0]=='\0'){
             break;
         }
 
@@ -72,11 +77,9 @@ char* createInputStringFromConsole(){
         }
 
         strcat(input,temp);
-        //strcat(input,"\n");
     }
+    //fclose(fp);
     free(temp);
-
-    fclose(fp);
     return input;
 }
 
@@ -86,16 +89,12 @@ void printHelp(){
 }
 
 int main() {
-    char test[]={
-            "eyo\nschlecht\ntest\naaaa\nwie\n"
-    };
 
-    // a b c \0 EOF
 
     //char* input = createInputStringFromFile("test.txt");
     char *input = createInputStringFromConsole();
-    printf("Input: \n%s\n",input);
-    createFilteredString(input,2,3);
+    printf("Input: \n%s\n\n",input);
+    createFilteredString(input,2,6,1);
 
     destroyString(input);
     return 0;
