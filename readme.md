@@ -8,13 +8,34 @@ Concatenate FILES to standard output. Optinally arguments can be given to indica
 
 
 ```bash
-  ./prnft.o -f 10 -t 15 readme.md
+  ./prnft.o --help
 ```
 
 Output
 
 ```bash
-  "Output omitted"
+Usage: prnft [OPTION]... [FILE]... 
+Concatenate FILES to standard output.
+
+With no FILE, or when FILE is -, read standard input.
+
+Parameter:
+  -f n       first line which will be displayed
+             if left blank start from beginning
+  -t m       last line which will be displayed
+             if left blank all lines till end will be displayed
+  -n         number all output lines
+  --help     display this help and exit
+  --version  output version information and exit
+
+Examples:
+  prnft -f 10 -t 15 test.txt
+    prints line 10 to 15 from file test.txt
+  cat test.txt | prntf -t 15 -n
+    data is read from stdin and printed from beginning to line 15
+    lines are printed with associated linenumber
+
+Full documentation <https://github.com/JScherni/prinft>
 ```
 
 
@@ -50,3 +71,4 @@ execute
 
 - Jonas Schernthaner: [@JScherni](https://github.com/JScherni)
 - David Gahleitner: [@dgahleitner](https://github.com/dgahleitner)
+
