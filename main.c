@@ -53,10 +53,18 @@ char* createInputStringFromConsole(){
     char* temp = calloc(128, sizeof(char));
 
     char c = 'y';
+    int i = 0;
+    FILE *fp = fopen("test.txt", "r");
 
-    while(temp[0]!=':'&&temp[1]!='q'){
+    while(/*temp[0]!=':'&&temp[1]!='q' && temp[0]!=EOF*/i++<12){
         printf("Enter a string: \n");
-        fgets(temp,128,stdin);
+        fgets(temp,128,fp);
+
+        if(temp[strlen(temp)+1]==EOF || (temp[0]==':' && temp[1]=='q') || temp==NULL || temp[0]=='\0'){
+            break;
+        }
+
+
         if((strlen(input)+strlen(temp)+1)>512)
         {
             inputSize+=512;
@@ -67,13 +75,22 @@ char* createInputStringFromConsole(){
         //strcat(input,"\n");
     }
     free(temp);
+
+    fclose(fp);
     return input;
+}
+
+void printHelp(){
+    printf("Usage: ./fprintf [OPTION]... [FILE]...\n");
+    printf("Write to standard output according to a format.\n");
 }
 
 int main() {
     char test[]={
             "eyo\nschlecht\ntest\naaaa\nwie\n"
     };
+
+    // a b c \0 EOF
 
     //char* input = createInputStringFromFile("test.txt");
     char *input = createInputStringFromConsole();
