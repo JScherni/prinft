@@ -124,7 +124,10 @@ int process_args(int ac, char *av[], char **input_file, // 1 bei erfolgreicher d
 
     else if (optind == ac - 1) // der letzte Parameter ist das File
     {
-        *input_file = av[optind];
+        if(strcmp(av[optind], "-")) // wird als File nur '-' angegeben
+        {
+            *input_file = av[optind];
+        }
     }
 
     return 1;
@@ -158,7 +161,7 @@ void printHelp()
             "Usage: prnft [OPTION]... [FILE]... \n"
             "Concatenate FILES to standard output.\n"
             "\n"
-            "With no FILE, read standard input.\n"
+            "With no FILE, or when FILE is -, read standard input.\n"
             "\n"
             "Parameter:\n"
             "  -f n       first line which will be displayed\n"
