@@ -5,12 +5,12 @@
 
 
 int decideLongShort(int ac, char *av[], char **input_file,
-                    int *ersteZeile, int *letzteZeile, int *Zeilennummer, int *hilfe, int *version);
+                    int *firstLine, int *lastLine, int *numberLines, int *help, int *version);
 
 int process_args(int ac, char *av[], char **input_file,
-                 int *ersteZeile, int *letzteZeile, int *Zeilennummer);
+                 int *firstLine, int *lastLine, int *numberLines);
 
-int processLongArgs(int ac, char *av[], int *hilfe, int *version);
+int processLongArgs(int ac, char *av[], int *help, int *version);
 
 int isInt(char *str);
 
@@ -18,20 +18,20 @@ int isInt(char *str);
 
 
 int decideLongShort(int ac, char *av[], char **input_file,  // 1 bei erfolgreicher decodierung ; 0 -> Syntax error
-                    int *ersteZeile, int *letzteZeile, int *Zeilennummer,
-                    int *hilfe, int *version)
+                    int *firstLine, int *lastLine, int *numberLines,
+                    int *help, int *version)
 {
     if ((ac == 2) && (av[1][1] == '-')) //ist das zweite zeichen des ersten Strings ein '-' so handelt es sich um einen --Befehl
     {
-        return processLongArgs(ac, av, hilfe, version);
+        return processLongArgs(ac, av, help, version);
     }
     else
     {
-        return process_args(ac, av, input_file, ersteZeile, letzteZeile, Zeilennummer);
+        return process_args(ac, av, input_file, firstLine, lastLine, numberLines);
     }
 }
 
-int processLongArgs(int ac, char *av[], int *hilfe, int *version)   // 1 bei erfolgreicher decodierung ; 0 -> Syntax error
+int processLongArgs(int ac, char *av[], int *help, int *version)   // 1 bei erfolgreicher decodierung ; 0 -> Syntax error
 {
     if (!strcmp(av[1], "--version"))
     {
@@ -40,7 +40,7 @@ int processLongArgs(int ac, char *av[], int *hilfe, int *version)   // 1 bei erf
     }
     else if (!strcmp(av[1], "--help"))
     {
-        *hilfe = 1;
+        *help = 1;
         return 1;
     }
     return 0;
@@ -59,11 +59,11 @@ int isInt(char *str) // 1 bei ist Integer; 0 kein Integer
 }
 
 int process_args(int ac, char *av[], char **input_file, // 1 bei erfolgreicher decodierung ; 0 -> Syntax error
-                 int *ersteZeile, int *letzteZeile, int *Zeilennummer)
+                 int *firstLine, int *lastLine, int *numberLines)
 {
     int c = 0;
 
-    *Zeilennummer = 0;
+    *numberLines = 0;
 
     while (1)
     {
@@ -81,56 +81,104 @@ int process_args(int ac, char *av[], char **input_file, // 1 bei erfolgreicher d
         { // switch stmt can be used in place of some chaining if-else if
 
         case 'n': // Sollen Zeilen nummeriert werden: 1 -> ja ; 0 -> nein
-            *Zeilennummer = 1;
+            *numberLines = 1;
             break;
 
         case 'f': // bei dieser Zeile wird begonnen
-            if (!isInt(optarg))
+            if (!isInt(optarg)) //Parameter ist kein Int
             {
-                //fprintf(stderr, "\n Parameter ist kein Int\n");
                 return 0;
             }
 
-            *ersteZeile = atoi(optarg); // atoi converts a string to an int
+            *firstLine = atoi(optarg); // atoi converts a string to an int
             break;
 
         case 't': // letzte auszugebende Zeile
-            if (!isInt(optarg))
+            if (!isInt(optarg)) //Parameter ist kein Int
             {
-                //fprintf(stderr, "\n Parameter ist kein Int\n");
                 return 0;
             }
 
-            *letzteZeile = atoi(optarg); // atoi converts a string to an int
+            *lastLine = atoi(optarg); // atoi converts a string to an int
             break;
 
         case ':':
-            //fprintf(stderr, "\n Error -%c missing arg\n", optopt);
-            // usage();
+            //Error missing arg
             return 0;
             break;
+
         case '?':
-            //fprintf(stderr, "\n Error unknown arg -%c\n", optopt);
-            // usage();
+            //Error unknown arg
             return 0;
             break;
+
         default:
             printf("optopt: %c\n", optopt);
         }
     }
 
-    if (optind < (ac - 1)) // Zu viele Argumente
+    if (optind < (ac - 1)) // Syntax error Zu viele Argumente
     {
-        //fprintf(stderr, "\n Syntax error zu viele Parameter\n");
-        // usage();
         return 0;
     }
+
     else if (optind == ac - 1) // der letzte Parameter ist das File
     {
         *input_file = av[optind];
     }
 
     return 1;
+}
+
+//automatische Ausgabe von ./printf.o: invalid option -- 'a' ?!?!?!
+void printSyntaxError() 
+{
+    fprintf(stderr, "Syntax error\n"
+                    "Try 'prnft --help' for more information\n");
+    return;
+}
+
+void printVersion()
+{
+    fprintf(stdout, 
+            "prnft (FHS extentions) 1.37\n"
+            "Copyright (C) 2023 FHS\n"
+            "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n"
+            "This is free software: you are free to change and redistribute it.\n"
+            "There is NO WARRANTY, to the extent permitted by law.\n"
+            "\n"
+            "Written by Jonas Schernthaner and David Gahleitner.\n"
+            "\n");
+    return;
+}
+
+void printHelp()
+{
+    fprintf(stdout,
+            "Usage: prnft [OPTION]... [FILE]... \n"
+            "Concatenate FILES to standard output.\n"
+            "\n"
+            "With no FILE, read standard input.\n"
+            "\n"
+            "Parameter:\n"
+            "  -f n       first line which will be displayed\n"
+            "             if left blank start from beginning\n"
+            "  -t m       last line which will be displayed\n"
+            "             if left blank all lines till end will be displayed\n"
+            "  -n         number all output lines\n"
+            "  --help     display this help and exit\n"
+            "  --version  output version information and exit\n"
+            "\n"
+            "Examples:\n"
+            "  prnft -f 10 -t 15 test.txt\n"
+            "    prints line 10 to 15 from file test.txt\n"
+            "  cat test.txt | prntf -t 15 -n\n"
+            "    data is read from stdin and printed from beginning to line 15\n"
+            "    lines are printed with associated linenumber\n"
+            "\n"
+            "Full documentation <https://github.com/JScherni/prinft>\n"
+            "\n");
+    return;
 }
 
 void printUntilNewLine(char* print){
@@ -228,30 +276,42 @@ char* createInputStringFromConsole(){
     return input;
 }
 
+/*
 void printHelp(){
     printf("Usage: ./fprintf [OPTION]... [FILE]...\n");
     printf("Write to standard output according to a format.\n");
 }
+*/
 
 int main(int argc, char *argv[]) {
 
-    int ersteZeile = 0;
-    int letzteZeile = -1;
+    int firstLine = 0;
+    int lastLine = -1;
     int Zeilennummerierung = 0;
     char *filename = NULL;
     int version = 0;
-    int hilfe = 0;
+    int help = 0;
 
-    // process_args(argc, argv, &filename, &ersteZeile, &letzteZeile, &Zeilennummerierung);
-
-    if(!decideLongShort(argc, argv, &filename, &ersteZeile, &letzteZeile, &Zeilennummerierung, &hilfe, &version))
+    if(!decideLongShort(argc, argv, &filename, &firstLine, &lastLine, &Zeilennummerierung, &help, &version))
     {
-        fprintf(stderr, "syntax error");
+        printSyntaxError();
         return 1;
     }
 
+    if(version)
+    {
+        printVersion();
+        return 0;
+    }
 
-    printf("\n Arg values: -f %d -t %d ", ersteZeile, letzteZeile);
+    if(help)
+    {
+        printHelp();
+        return 0;
+    }
+
+
+    printf("\n Arg values: -f %d -t %d ", firstLine, lastLine);
     if (Zeilennummerierung)
     {
         printf("-n ");
@@ -260,7 +320,7 @@ int main(int argc, char *argv[]) {
     {
         printf("--version");
     }
-    if (hilfe)
+    if (help)
     {
         printf("--help");
     }
@@ -282,7 +342,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    createFilteredString(input,ersteZeile,letzteZeile,Zeilennummerierung);
+    createFilteredString(input,firstLine,lastLine,Zeilennummerierung);
 
     destroyString(input);
     return 0;
