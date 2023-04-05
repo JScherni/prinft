@@ -244,7 +244,6 @@ char* createInputStringFromConsole(){
     char* input = calloc(inputSize, sizeof(char));
     char* temp = calloc(128, sizeof(char));
 
-    printf("Enter lines of text. End with ':q'\n");
     while(1){
         memset(temp,0,128);
         //printf("Enter a string: \n");
