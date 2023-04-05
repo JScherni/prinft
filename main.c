@@ -1,6 +1,137 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+
+int decideLongShort(int ac, char *av[], char **input_file,
+                    int *ersteZeile, int *letzteZeile, int *Zeilennummer, int *hilfe, int *version);
+
+int process_args(int ac, char *av[], char **input_file,
+                 int *ersteZeile, int *letzteZeile, int *Zeilennummer);
+
+int processLongArgs(int ac, char *av[], int *hilfe, int *version);
+
+int isInt(char *str);
+
+
+
+
+int decideLongShort(int ac, char *av[], char **input_file,  // 1 bei erfolgreicher decodierung ; 0 -> Syntax error
+                    int *ersteZeile, int *letzteZeile, int *Zeilennummer,
+                    int *hilfe, int *version)
+{
+    if ((ac == 2) && (av[1][1] == '-')) //ist das zweite zeichen des ersten Strings ein '-' so handelt es sich um einen --Befehl
+    {
+        return processLongArgs(ac, av, hilfe, version);
+    }
+    else
+    {
+        return process_args(ac, av, input_file, ersteZeile, letzteZeile, Zeilennummer);
+    }
+}
+
+int processLongArgs(int ac, char *av[], int *hilfe, int *version)   // 1 bei erfolgreicher decodierung ; 0 -> Syntax error
+{
+    if (!strcmp(av[1], "--version"))
+    {
+        *version = 1;
+        return 1;
+    }
+    else if (!strcmp(av[1], "--help"))
+    {
+        *hilfe = 1;
+        return 1;
+    }
+    return 0;
+}
+
+int isInt(char *str) // 1 bei ist Integer; 0 kein Integer
+{
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        if (!(str[i] >= 48 && str[i] <= 57))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int process_args(int ac, char *av[], char **input_file, // 1 bei erfolgreicher decodierung ; 0 -> Syntax error
+                 int *ersteZeile, int *letzteZeile, int *Zeilennummer)
+{
+    int c = 0;
+
+    *Zeilennummer = 0;
+
+    while (1)
+    {
+
+        // "f:"  means -f option has an arg  "n"  -n does not
+
+        c = getopt(ac, av, "f:t:n");
+
+        if (c == -1)
+        {
+            break; // nothing left to parse in the command line
+        }
+
+        switch (c)
+        { // switch stmt can be used in place of some chaining if-else if
+
+        case 'n': // Sollen Zeilen nummeriert werden: 1 -> ja ; 0 -> nein
+            *Zeilennummer = 1;
+            break;
+
+        case 'f': // bei dieser Zeile wird begonnen
+            if (!isInt(optarg))
+            {
+                //fprintf(stderr, "\n Parameter ist kein Int\n");
+                return 0;
+            }
+
+            *ersteZeile = atoi(optarg); // atoi converts a string to an int
+            break;
+
+        case 't': // letzte auszugebende Zeile
+            if (!isInt(optarg))
+            {
+                //fprintf(stderr, "\n Parameter ist kein Int\n");
+                return 0;
+            }
+
+            *letzteZeile = atoi(optarg); // atoi converts a string to an int
+            break;
+
+        case ':':
+            //fprintf(stderr, "\n Error -%c missing arg\n", optopt);
+            // usage();
+            return 0;
+            break;
+        case '?':
+            //fprintf(stderr, "\n Error unknown arg -%c\n", optopt);
+            // usage();
+            return 0;
+            break;
+        default:
+            printf("optopt: %c\n", optopt);
+        }
+    }
+
+    if (optind < (ac - 1)) // Zu viele Argumente
+    {
+        //fprintf(stderr, "\n Syntax error zu viele Parameter\n");
+        // usage();
+        return 0;
+    }
+    else if (optind == ac - 1) // der letzte Parameter ist das File
+    {
+        *input_file = av[optind];
+    }
+
+    return 1;
+}
 
 void printUntilNewLine(char* print){
     int i = 0;
@@ -88,8 +219,43 @@ void printHelp(){
     printf("Write to standard output according to a format.\n");
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
+    int ersteZeile = 0;
+    int letzteZeile = 0;
+    int Zeilennummerierung = 0;
+    char *filename = NULL;
+    int version = 0;
+    int hilfe = 0;
+
+    // process_args(argc, argv, &filename, &ersteZeile, &letzteZeile, &Zeilennummerierung);
+
+    if(!decideLongShort(argc, argv, &filename, &ersteZeile, &letzteZeile, &Zeilennummerierung, &hilfe, &version))
+    {
+        fprintf(stderr, "syntax error");
+        return 1;
+    }
+
+
+    printf("\n Arg values: -f %d -t %d ", ersteZeile, letzteZeile);
+    if (Zeilennummerierung)
+    {
+        printf("-n ");
+    }
+    if (version)
+    {
+        printf("--version");
+    }
+    if (hilfe)
+    {
+        printf("--help");
+    }
+    if (filename)
+    {
+        printf("%s\n", filename);
+    }
+    printf("\n");
+    return 0;
 
     //char* input = createInputStringFromFile("test.txt");
     char *input = createInputStringFromConsole();
