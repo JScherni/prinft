@@ -310,4 +310,3 @@ int main(int argc, char *argv[]) {
     destroyString(input);
     return 0;
 }
-// a b c \n \0
